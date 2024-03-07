@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.postit.mapper.PostMapper">
+	
+	<select id="getList" resultType="com.postit.domain.PostDTO">
+	<![CDATA[
+		select * from post_postit where pno>0 and rownum<=100	
+	]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		select count(*) from post_postit
+		where
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item='type' collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'C'.toString()">
+							pcontent like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'W'.toString()">
+							name like '%'||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+		
+		pno > 0
+	</select>
+	
+	<select id="getListWithPaging" resultType="com.postit.domain.PostDTO">
+		<![CDATA[
+		select pno,cno,title,pcontent,name,password,pdate,img
+		from (
+			select /*+INDEX_DESC(post_postit sys_c007353) */
+				rownum rn,pno,cno,title,pcontent,name,password,pdate,img
+			from post_postit
+			where
+		]]>	
+			
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item='type' collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'C'.toString()">
+							pcontent like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'W'.toString()">
+							name like '%'||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+			
+			
+		<![CDATA[
+			 rownum<=#{pageNum} * #{amount}
+		)
+		where rn>(#{pageNum}-1)*#{amount}
+		]]>
+	</select>
+	
+	<select id="read" resultType="com.postit.domain.PostDTO"> 
+		select * from post_postit where pno=#{pno} 
+	</select>
+	
+	<delete id="delete"> 
+		delete from post_postit where pno=#{pno} 
+	</delete>
+	
+	<update id="update"> update post_postit set
+		title=#{title},name=#{name},password=#{password},pcontent=#{pcontent},pdate=#{pdate},updatedate=sysdate
+		where pno=#{pno} 
+	</update>
+	
+	<insert id="insertSelectKey">
+    <selectKey keyProperty="pno" order="BEFORE" resultType="long">
+        select seq_post.nextval from dual
+    </selectKey>
+    
+	    insert into post_postit(pno, cno, title, pcontent, name, password, pdate, img)
+	    values(
+	        #{pno}, 1, #{title}, #{pcontent}, #{name}, #{password}, sysdate,#{img})
+	</insert>
+	
+</mapper>
