@@ -54,7 +54,7 @@
 
 <body>
     <div class="container mt-3">
-          <form action="/board/update" method="post">
+          <form action="/board/update" method="post" enctype="multipart/form-data">
 	                    <input type="hidden" id="pageNum" name="pageNum" value='<c:out value="${cri.pageNum}"/>'>
                    		<input type="hidden" id="amount" name="amount" value='<c:out value="${cri.amount}"/>'>
                    		<input type="hidden" id="keyword" name="keyword" value='<c:out value="${cri.keyword}"/>'>
@@ -92,7 +92,11 @@
                 <!-- 파일 선택(input type="file") -->
                 <div class="mb-3">
                     <label for="formFile" class="form-label">File input</label>
-                    <input class="form-control" type="file" id="formFile" name="img">
+                    <input class="form-control" type="file" id="formFile" name="newImg">
+                    <!-- 기존 이미지의 경로를 hidden으로 전송 -->
+                    <c:if test="${not empty board.img}">	
+					<input type="hidden" name="existingImg" value='<c:out value="${board.img}"/>'>
+					</c:if>	
                     <!--  <%=request.getRealPath("/") %> -->
                 </div>
                 <div class="mb-3">
@@ -121,7 +125,7 @@
    
     
     
-    
+
     <script>
     $(document).ready(function(){
 		var formObj=$("form"); // form태그 찾기
@@ -137,42 +141,74 @@
 			}else if(operation==="list"){
 				formObj.attr("action","/board/main").attr("method","get"); //목록으로   
 				
-				//hidden 태그를 복제해 둔다.
-				var pageNumTag=$("input[name='pageNum']").clone();
-				var amountTag=$("input[name='amount']").clone();
-				var keywordTag=$("input[name='keyword']").clone();
-				var typeTag=$("input[name='type']").clone();
 				
-				//form태그의 모든 태그를 삭제한다.
-				formObj.empty();
-				
-				//form태그에 복제해 둔 hidden태그를 다시 추가
-				formObj.append(pageNumTag);
-				formObj.append(amountTag);
-				formObj.append(keywordTag);
-				formObj.append(typeTag);
-			}
+			}else if(operation==="update"){
+	            // 이미지가 선택되지 않았을 때 기존 이미지를 유지
+	            if($("#formFile").get(0).files.length === 0 && !$('input[name="existingImg"]').length) {
+	            	// 이미지가 없을 때만 기존 이미지의 경로를 hidden input에 추가
+	                $('<input>').attr({
+	                    type: 'hidden',
+	                    name: 'existingImg',
+	                    value: '<c:out value="${board.img}"/>'
+	                }).appendTo(formObj);
+	            }
+	        }
 			
 			formObj.submit();//전송
 		});
+		// 파일 입력에 변화가 있을 때의 이벤트 처리
+        $("#formFile").change(function () {
+            // 이전에 선택한 이미지의 프리뷰를 모두 제거
+            $('#preview-container').empty();
+
+            // 선택된 이미지를 저장할 배열
+            var selectedImages = [];
+
+            // 최대 5개까지만 선택하도록 체크
+            for (var i = 0; i < Math.min(this.files.length, 5); i++) {
+                // 이미지 미리보기 함수 호출
+                readURL(this.files[i], selectedImages);
+            }
+
+            // 이미 선택된 이미지의 개수가 5개 미만일 경우 나머지 히든 인풋 태그에 null 값 설정
+            for (var i = this.files.length; i < 5; i++) {
+                selectedImages.push(null);
+            }
+            
+            // 히든 인풋 태그에 값 설정
+            for (var i = 0; i < 5; i++) {
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'img' + (i + 1),
+                    value: selectedImages[i]
+                }).appendTo('#preview-container');
+            }
+        });
 	});
 
-        // 이미지 미리보기 함수
-        function readURL(input) {
-            // 파일이 선택되었고, 해당 파일이 존재한다면
-            if (input.files && input.files[0]) {
-                // FileReader 객체 생성
-                var reader = new FileReader();
-                // 파일 읽기가 완료되었을 때의 이벤트 처리
-                reader.onload = function (e) {
-                    // 이미지 미리보기의 src 속성에 읽은 파일의 결과물 할당
-                    $('#preview').attr('src', e.target.result);
-                    // 이미지 미리보기 영역 보이기
-                    $('#preview').show();
-                }
-                // 파일을 읽어 data URL 형태로 변환
-                reader.readAsDataURL(input.files[0]);
-            }
+ // 이미지 미리보기 함수
+    function readURL(file, selectedImages) {
+        // FileReader 객체 생성
+        var reader = new FileReader();
+        // 파일 읽기가 완료되었을 때의 이벤트 처리
+        reader.onload = function (e) {
+            // 새로운 이미지 요소를 만들어 속성 설정
+            var img = $('<img>').attr('src', e.target.result).addClass('img-fluid');
+            // 이미지의 이름을 히든으로 추가
+            var hiddenInput = $('<input>').attr({
+                type: 'hidden',
+                name: 'img' + (selectedImages.length + 1),
+                value: file.name
+            });
+            // 새로운 미리보기 칸을 만들어 이미지와 히든을 추가
+            var previewContainer = $('<div>').addClass('mb-3').append(img).append(hiddenInput);
+            // 이미지 미리보기 영역에 추가
+            $('#preview-container').append(previewContainer);
+            // 이미지 파일 이름을 selectedImages 배열에 저장
+            selectedImages.push(file.name);
         }
+        // 파일을 읽어 data URL 형태로 변환
+        reader.readAsDataURL(file);
+    }
     </script>
 </body>

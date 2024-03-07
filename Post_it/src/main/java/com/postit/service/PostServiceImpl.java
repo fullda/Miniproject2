@@ -72,5 +72,13 @@ public class PostServiceImpl implements PostService {
 	      mapper.insertSelectKey(board);
 	      
 	   }
+	 //최신 글 번호 가져오기
+	@Override
+	public PostDTO latestRead() {
+		//PostDTO pDTO =new PostDTO();
+		PostDTO pDTO1 =new PostDTO();
+		pDTO1 = mapper.latestRead();
+		return pDTO1;
+	}
 }
 

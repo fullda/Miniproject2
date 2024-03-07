@@ -1,11 +1,9 @@
 var replyService = (function(){
 	function getList(param, callback, error){
 		var pno=param.pno;
-		var page= param.page || 1;
+		var page= param.page ;
 		
-		console.log("되니?");
 		$.getJSON("/replies/"+pno+"/"+page+".json",function(data) {
-		console.log("ehlsdsa");
 					if (callback) {
 					console.log(data);
 						callback(data.replyCnt,data.list);

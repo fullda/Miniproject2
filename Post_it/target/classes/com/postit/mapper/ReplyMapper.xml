@@ -5,7 +5,7 @@
 <mapper namespace="com.postit.mapper.ReplyMapper">
 	<!-- 등록**************************************************************************-->
 	<insert id="insert">
-	insert into reply(rno,pno,rcontent,name,password)
+	insert into reply_postit (rno,pno,rcontent,name,password)
 	values(seq_reply.nextval,#{pno},#{rcontent},#{name},#{password})
 	</insert>
 	<!-- 등록 ends**************************************************************************-->
@@ -20,10 +20,10 @@
 	        rownum rn, rno, pno, rcontent, name, password, rdate
 	    FROM (
 	        SELECT rno, pno, rcontent, name, password, rdate
-	        FROM reply
+	        FROM reply_postit
 	        WHERE pno=#{pno} 
 	        AND rno>0
-	        ORDER BY rno DESC -- rno 기준으로 내림차순 정렬
+	      
 	    )
 	    WHERE rownum <= #{cri.pageNum} * #{cri.amount}
 	)
@@ -35,13 +35,13 @@
 	
 	<!-- 상세보기 *************************************************************************************** -->
 	<select id="read" resultType="com.postit.domain.ReplyDTO">
-		select * from reply where rno = #{rno}
+		select * from reply_postit where rno = #{rno}
 	</select>
 	<!-- 상세보기 끝 *************************************************************************************** -->
 	
 	<!-- 수정************************************************************************************************* -->
 	<update id="update">
-		update reply set rcontent=#{rcontent}, name=#{name},password=#{password} ,rdate=sysdate
+		update reply_postit set rcontent=#{rcontent}, name=#{name},password=#{password} ,rdate=sysdate
 		where rno=#{rno}
 	</update>
 	<!-- 삭제**************************************************************************************************** -->
@@ -49,11 +49,11 @@
 	
 	<!-- 수정 끝************************************************************************************************* -->
 	<delete id="delete">
-		delete reply where rno=#{rno}
+		delete reply_postit where rno=#{rno}
 	</delete>
 	<!-- 삭제 끝**************************************************************************************************** -->
 	
 	<select id="getCountByPno" resultType="int">
-		select count(rno) from reply where pno=#{pno}
+		select count(rno) from reply_postit where pno=#{pno}
 	</select>
 </mapper>

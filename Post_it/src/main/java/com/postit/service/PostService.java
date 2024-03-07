@@ -25,4 +25,6 @@ public interface PostService {
 	public boolean checkPW(Long pno, String password);
 	//등록
 	public void register(PostDTO board);   
+	//최신글 불러오기
+	public PostDTO latestRead();
 }

@@ -97,7 +97,7 @@ public class PostController implements ServletContextAware{
 
 		// 파일을 업로드할 경로를 지정해야 합니다. (예: "c:/upload")
 		//	          String uploadPath = "upload";
-		String uploadPath = servletContext.getRealPath("/upload");
+		String uploadPath = servletContext.getRealPath("/resources/upload");
 		System.out.println(uploadPath);
 		System.out.println(uploadPath);
 		System.out.println(uploadPath);
@@ -120,7 +120,7 @@ public class PostController implements ServletContextAware{
 		// 중복된 파일 이름 처리
 		int count = 1;
 		while (dest.exists()) {
-			dest = new File(baseName + "_" + count + "." + extension);
+			dest = new File(uploadPath, baseName + "_" + count + "." + extension);
 			count++;
 		}
 
@@ -132,28 +132,13 @@ public class PostController implements ServletContextAware{
 			img.transferTo(dest);
 
 			// 상대 경로로 변환하여 리턴
-			return getRelativePath(dest.getPath());
+			 return dest.getName();
 		} catch (IOException e) {
 			e.printStackTrace(); // 파일 저장 중 예외 발생 시 예외 처리
 			return null;
 		}
 	}
 	
-	private String getRelativePath(String absolutePath) {
-		// 실제 서블릿 컨텍스트의 경로를 가져옴
-		String servletContextPath = servletContext.getRealPath("/");
-
-		// 상대 경로 생성
-		String relativePath = absolutePath.replace(servletContextPath, "");
-
-		// 슬래시로 경로를 통일
-		relativePath = relativePath.replace("\\", "/");
-
-		// resources 폴더로 상대 경로 조정
-		relativePath = "../resources/" + relativePath;
-
-		return relativePath;
-	}
 	
 	@GetMapping("/read")
 	public void read(Long pno, Model model) {
@@ -175,7 +160,13 @@ public class PostController implements ServletContextAware{
 	//main
 	@GetMapping("/main")
 	public void main(Criteria cri, Model model) {
-		System.out.println("메인페이지 왔습니다.");
+		System.out.println("메인페이지 왔습니다."+ service.read(service.latestRead().getPno()).getImg());
+		//최신글 하나 불러오기
+	
+		if(service.latestRead() !=null)
+			model.addAttribute("main",service.read(service.latestRead().getPno()));
+		else
+			model.addAttribute("main",null);
 		model.addAttribute("list",service.getList(cri));
 		int total=service.getTotal(cri); //전체글수
 		model.addAttribute("pageMaker", new PageDTO(cri,total));
@@ -188,13 +179,78 @@ public class PostController implements ServletContextAware{
 	}
 
 	//수정처리
-	@PostMapping("/update")
-	public String modify(PostDTO postDTO, RedirectAttributes rttr) {
-		if(service.update(postDTO)) { //수정처리가 되었으면
-			rttr.addFlashAttribute("result", "success");
+		@PostMapping("/update")
+		public String modify(PostDTO postDTO,@RequestParam("newImg") MultipartFile newImg, RedirectAttributes rttr) throws IOException {
+			if (newImg != null && !newImg.isEmpty()) {
+		        // 새로운 이미지가 업로드된 경우
+		        String filePath = updateFile(newImg);
+		        
+		        System.out.println(filePath);
+		        System.out.println(filePath);
+		        System.out.println(filePath);
+		        System.out.println(filePath);
+		        System.out.println(filePath);
+		        
+		        
+		        postDTO.setImg(filePath);
+		    }
+			if(service.update(postDTO)) { //수정처리가 되었으면
+				rttr.addFlashAttribute("result", "success");
+			}
+			return "redirect:/board/main"; //목록으로 이동
 		}
-		return "redirect:/board/main"; //목록으로 이동
-	}
+		//★★★★★이미지 수정★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+		
+		private String updateFile(MultipartFile newImg) {
+			// 파일이 null이거나 비어 있으면 처리하지 않고 그대로 반환
+			if (newImg == null || newImg.isEmpty()) {
+				return ""; //널값으로 리턴
+			}
+
+			// 파일을 업로드할 경로를 지정해야 합니다. (예: "c:/upload")
+			//	          String uploadPath = "upload";
+			String uploadPath = servletContext.getRealPath("/resources/upload");
+			System.out.println(uploadPath);
+			System.out.println(uploadPath);
+			System.out.println(uploadPath);
+
+
+
+
+			// 업로드된 파일의 원본 파일 이름과 확장자 추출
+			String originalFileName = newImg.getOriginalFilename();
+			String baseName = FilenameUtils.getBaseName(originalFileName);
+			String extension = FilenameUtils.getExtension(originalFileName);
+			
+			// ★수정된 파일 이름 생성
+		    String updateFileName = baseName + "_" + System.currentTimeMillis() + "." + extension;
+
+			// 저장할 파일 객체 생성
+			File dest = new File(uploadPath, updateFileName);
+
+			// 중복된 파일 이름 처리
+			int count = 1;
+			while (dest.exists()) {
+				dest = new File(baseName + "_" + count + "." + extension);
+				count++;
+			}
+
+			try {
+				// 파일 저장
+				System.out.println("저장 경로: " + dest.getPath());
+				System.out.println("저장 경로: " + dest.getPath());
+				System.out.println("저장 경로: " + dest.getPath());
+				newImg.transferTo(dest);
+
+				// 상대 경로로 변환하여 리턴
+				return dest.getName();
+			} catch (IOException e) {
+				e.printStackTrace(); // 파일 저장 중 예외 발생 시 예외 처리
+				return null;
+			}
+		}
+		
+		//★★★★★이미지 수정.end★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 	//삭제
 	@PostMapping("/remove")

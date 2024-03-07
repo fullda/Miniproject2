@@ -20,5 +20,6 @@ public interface PostMapper {
 	public int update(PostDTO board);
 	//등록.key값 구하기
 	public Integer insertSelectKey(PostDTO board);
-	//상세보기
+	//최신글 불러오기
+	public PostDTO latestRead();
 }

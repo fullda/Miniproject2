@@ -46,14 +46,6 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="/board/register">Write</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdownBlog" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Topic</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownBlog">
-                            <li><a class="dropdown-item" href="blog-home.html">All</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">AI</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">IOT</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">블록체인</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">빅데이터</a></li>
-                        </ul>
                     </li>
                 </ul>
             </div>
@@ -69,17 +61,18 @@
                         <div class="col-lg-6 col-xl-5 py-lg-5">
                             <div class="p-4 p-md-5">
                                 <div class="h2 fw-bolder">
-                                    <c:out value="${list[0].title}"/>
+                                    <c:out value="${main.title}"/>
                                 </div>
-                                <p>${list[0].pcontent}</p>
-                                <a class="stretched-link text-decoration-none" href="/board/read?pno=${list[0].pno}">
+                                <c:if test="${not empty main}">
+                                <a class="stretched-link text-decoration-none" href="/board/read?pno=${main.pno}">
                                     Read more
                                     <i class="bi bi-arrow-right"></i>
                                 </a>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-lg-6 col-xl-7">
-                            <div class="bg-featured-blog" style="background-image: url('${list[0].img != null ? list[0].img : 'https://dummyimage.com/700x350/343a40/6c757d'}'); height: 350px; background-size: cover;"></div>
+                            <div class="bg-featured-blog" style="background-image: url('/resources/upload/${main.img}');height: 350px; background-size:100% 100%;"></div>
                         </div>
                     </div>
                 </div>
@@ -93,12 +86,11 @@
                 <c:forEach var="story" items="${list}">
                     <div class="col-lg-4 mb-5">
                         <div class="card h-100 shadow border-0">
-                            <img class="card-img-top" src="/resource/upload/${story.img}" alt="Image" style="height: 250px; object-fit: cover;" />
+                            <img class="card-img-top" src="/resources/upload/${story.img}" alt="Image" style="height: 250px; object-fit: cover;" />
                             <div class="card-body p-4">
                                 <a class="text-decoration-none link-dark stretched-link" href="/board/read?pno=${story.pno}">
                                     <div class="h5 card-title mb-3"><c:out value="${story.title}"/></div>
                                 </a>
-                                <p class="card-text mb-0">${story.pcontent}</p>
                             </div>
                             <div class="card-footer p-4 pt-0 bg-transparent border-top-0">
                                 <div class="d-flex align-items-end justify-content-between">

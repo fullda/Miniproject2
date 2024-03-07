@@ -46,14 +46,6 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="/board/register">Write</a></li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdownBlog" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Topic</a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownBlog">
-                            <li><a class="dropdown-item" href="blog-home.html">All</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">AI</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">IOT</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">블록체인</a></li>
-                            <li><a class="dropdown-item" href="blog-post.html">빅데이터</a></li>
-                        </ul>
                     </li>
                 </ul>
             </div>

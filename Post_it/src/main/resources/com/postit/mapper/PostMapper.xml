@@ -31,7 +31,6 @@
 				</trim>
 			</foreach>
 		</trim>
-		
 		pno > 0
 	</select>
 	
@@ -75,13 +74,28 @@
 		select * from post_postit where pno=#{pno} 
 	</select>
 	
+	<select id="latestRead" resultType="com.postit.domain.PostDTO"> 
+		SELECT pno
+		FROM (
+		    SELECT pno
+		    FROM post_postit
+		    ORDER BY pno DESC
+		) 
+		WHERE ROWNUM = 1
+	</select>
+	
 	<delete id="delete"> 
 		delete from post_postit where pno=#{pno} 
 	</delete>
 	
-	<update id="update"> update post_postit set
-		title=#{title},name=#{name},password=#{password},pcontent=#{pcontent},pdate=#{pdate},updatedate=sysdate
-		where pno=#{pno} 
+	<update id="update" parameterType="com.postit.domain.PostDTO">
+		update post_postit
+		<set>
+		title=#{title}, name=#{name}, password=#{password}, pcontent=#{pcontent},
+		<if test="img != null"> img=#{img}, </if>
+		pdate=#{pdate}, updatedate=sysdate
+		</set>
+		where pno=#{pno}
 	</update>
 	
 	<insert id="insertSelectKey">

@@ -73,14 +73,16 @@
                     <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password"
                         autocomplete="off" name="password">
                 </div>
-                <!-- 이미지 미리보기 -->
-                <div id="preview-container" class="mb-3">
-                    <img class="img-fluid" id="preview" src="#" alt="Image Preview" />
-                </div>
                 <!-- 내용 입력 필드 -->
                 <div class="mb-3">
                     <label for="editor" class="form-label">Content</label>
                     <textarea class="form-control" id="content" rows="10" name="pcontent"></textarea>
+                </div>
+                <!-- 이미지 미리보기 -->
+                <div id="preview-container" class="mb-3" style="width:400px; height:300px; overflow: hidden;">
+                	
+                    	<img class="img-fluid"  id="preview" />
+                   
                 </div>
                 <!-- 파일 선택(input type="file") -->
                 <div class="mb-3">
@@ -141,7 +143,8 @@
         // 파일 읽기가 완료되었을 때의 이벤트 처리
         reader.onload = function (e) {
             // 새로운 이미지 요소를 만들어 속성 설정
-            var img = $('<img>').attr('src', e.target.result).addClass('img-fluid');
+           var img = $('<img>').attr('src', e.target.result).addClass('img-fluid')
+           .css({'width': '100%','height': '100%','object-fit':'cover'});
             // 이미지의 이름을 히든으로 추가
             var hiddenInput = $('<input>').attr({
                 type: 'hidden',
