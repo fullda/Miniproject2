@@ -110,9 +110,9 @@
                 <!-- 버튼 -->
                 <button data-oper="update" class="btn btn-primary custom-button">수정하기</button>
                	<button data-oper="remove" class="btn btn-primary custom-button">삭제하기</button>
-               	<button data-oper="list" class="btn btn-primary custom-button">메인</button> 
+               	<button class="btn btn-primary custom-button"><a href="/board/main" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='inherit'; this.style.textDecoration='none';" onmousedown="this.style.outline='none';" onfocus="this.style.outline='none';">메인</a></button> 
                 <!-- 버튼 -->
-                <a href="javascript:history.back();" class="btn btn-primary custom-button" id="btnList">Cancel</a>
+                <a href="javascript:history.back();" class="btn btn-primary custom-button" id="btnList">취소</a>
             </fieldset>
         </form>
     </div>
@@ -139,9 +139,8 @@
 				
 				formObj.attr("action","/board/remove"); //삭제처리
 			}else if(operation==="list"){
+				
 				formObj.attr("action","/board/main").attr("method","get"); //목록으로   
-				
-				
 			}else if(operation==="update"){
 	            // 이미지가 선택되지 않았을 때 기존 이미지를 유지
 	            if($("#formFile").get(0).files.length === 0 && !$('input[name="existingImg"]').length) {

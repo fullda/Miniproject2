@@ -1,10 +1,23 @@
 package com.postit.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import javax.inject.Inject;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,14 +145,14 @@ public class PostController implements ServletContextAware{
 			img.transferTo(dest);
 
 			// 상대 경로로 변환하여 리턴
-			 return dest.getName();
+			return dest.getName();
 		} catch (IOException e) {
 			e.printStackTrace(); // 파일 저장 중 예외 발생 시 예외 처리
 			return null;
 		}
 	}
-	
-	
+
+
 	@GetMapping("/read")
 	public void read(Long pno, Model model) {
 		model.addAttribute("postit",service.read(pno));
@@ -162,7 +175,7 @@ public class PostController implements ServletContextAware{
 	public void main(Criteria cri, Model model) {
 		System.out.println("메인페이지 왔습니다."+ service.read(service.latestRead().getPno()).getImg());
 		//최신글 하나 불러오기
-	
+
 		if(service.latestRead() !=null)
 			model.addAttribute("main",service.read(service.latestRead().getPno()));
 		else
@@ -179,78 +192,78 @@ public class PostController implements ServletContextAware{
 	}
 
 	//수정처리
-		@PostMapping("/update")
-		public String modify(PostDTO postDTO,@RequestParam("newImg") MultipartFile newImg, RedirectAttributes rttr) throws IOException {
-			if (newImg != null && !newImg.isEmpty()) {
-		        // 새로운 이미지가 업로드된 경우
-		        String filePath = updateFile(newImg);
-		        
-		        System.out.println(filePath);
-		        System.out.println(filePath);
-		        System.out.println(filePath);
-		        System.out.println(filePath);
-		        System.out.println(filePath);
-		        
-		        
-		        postDTO.setImg(filePath);
-		    }
-			if(service.update(postDTO)) { //수정처리가 되었으면
-				rttr.addFlashAttribute("result", "success");
-			}
-			return "redirect:/board/main"; //목록으로 이동
+	@PostMapping("/update")
+	public String modify(PostDTO postDTO,@RequestParam("newImg") MultipartFile newImg, RedirectAttributes rttr) throws IOException {
+		if (newImg != null && !newImg.isEmpty()) {
+			// 새로운 이미지가 업로드된 경우
+			String filePath = updateFile(newImg);
+
+			System.out.println(filePath);
+			System.out.println(filePath);
+			System.out.println(filePath);
+			System.out.println(filePath);
+			System.out.println(filePath);
+
+
+			postDTO.setImg(filePath);
 		}
-		//★★★★★이미지 수정★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-		
-		private String updateFile(MultipartFile newImg) {
-			// 파일이 null이거나 비어 있으면 처리하지 않고 그대로 반환
-			if (newImg == null || newImg.isEmpty()) {
-				return ""; //널값으로 리턴
-			}
-
-			// 파일을 업로드할 경로를 지정해야 합니다. (예: "c:/upload")
-			//	          String uploadPath = "upload";
-			String uploadPath = servletContext.getRealPath("/resources/upload");
-			System.out.println(uploadPath);
-			System.out.println(uploadPath);
-			System.out.println(uploadPath);
-
-
-
-
-			// 업로드된 파일의 원본 파일 이름과 확장자 추출
-			String originalFileName = newImg.getOriginalFilename();
-			String baseName = FilenameUtils.getBaseName(originalFileName);
-			String extension = FilenameUtils.getExtension(originalFileName);
-			
-			// ★수정된 파일 이름 생성
-		    String updateFileName = baseName + "_" + System.currentTimeMillis() + "." + extension;
-
-			// 저장할 파일 객체 생성
-			File dest = new File(uploadPath, updateFileName);
-
-			// 중복된 파일 이름 처리
-			int count = 1;
-			while (dest.exists()) {
-				dest = new File(baseName + "_" + count + "." + extension);
-				count++;
-			}
-
-			try {
-				// 파일 저장
-				System.out.println("저장 경로: " + dest.getPath());
-				System.out.println("저장 경로: " + dest.getPath());
-				System.out.println("저장 경로: " + dest.getPath());
-				newImg.transferTo(dest);
-
-				// 상대 경로로 변환하여 리턴
-				return dest.getName();
-			} catch (IOException e) {
-				e.printStackTrace(); // 파일 저장 중 예외 발생 시 예외 처리
-				return null;
-			}
+		if(service.update(postDTO)) { //수정처리가 되었으면
+			rttr.addFlashAttribute("result", "success");
 		}
-		
-		//★★★★★이미지 수정.end★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+		return "redirect:/board/main"; //목록으로 이동
+	}
+	//★★★★★이미지 수정★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+	private String updateFile(MultipartFile newImg) {
+		// 파일이 null이거나 비어 있으면 처리하지 않고 그대로 반환
+		if (newImg == null || newImg.isEmpty()) {
+			return ""; //널값으로 리턴
+		}
+
+		// 파일을 업로드할 경로를 지정해야 합니다. (예: "c:/upload")
+		//	          String uploadPath = "upload";
+		String uploadPath = servletContext.getRealPath("/resources/upload");
+		System.out.println(uploadPath);
+		System.out.println(uploadPath);
+		System.out.println(uploadPath);
+
+
+
+
+		// 업로드된 파일의 원본 파일 이름과 확장자 추출
+		String originalFileName = newImg.getOriginalFilename();
+		String baseName = FilenameUtils.getBaseName(originalFileName);
+		String extension = FilenameUtils.getExtension(originalFileName);
+
+		// ★수정된 파일 이름 생성
+		String updateFileName = baseName + "_" + System.currentTimeMillis() + "." + extension;
+
+		// 저장할 파일 객체 생성
+		File dest = new File(uploadPath, updateFileName);
+
+		// 중복된 파일 이름 처리
+		int count = 1;
+		while (dest.exists()) {
+			dest = new File(baseName + "_" + count + "." + extension);
+			count++;
+		}
+
+		try {
+			// 파일 저장
+			System.out.println("저장 경로: " + dest.getPath());
+			System.out.println("저장 경로: " + dest.getPath());
+			System.out.println("저장 경로: " + dest.getPath());
+			newImg.transferTo(dest);
+
+			// 상대 경로로 변환하여 리턴
+			return dest.getName();
+		} catch (IOException e) {
+			e.printStackTrace(); // 파일 저장 중 예외 발생 시 예외 처리
+			return null;
+		}
+	}
+
+	//★★★★★이미지 수정.end★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
 	//삭제
 	@PostMapping("/remove")
@@ -262,5 +275,95 @@ public class PostController implements ServletContextAware{
 		return "redirect:/board/main"; //목록으로 이동
 	}
 
+	@GetMapping("/search")
+	public void searchNaver(@RequestParam("keyword")String keyword, HttpServletResponse response, Model model) throws  ServletException, IOException {
+		// 1. 인증 정보 설정
+		String clientId = "POIOEKc2AH1gqGMlhbgA";
+		String clientSecret = "YyrhnHeGz9";
+		// Random 객체 생성
+        Random random = new Random();
+        // 1부터 99 사이의 난수 생성
+        int randomNumber = random.nextInt(99) + 1;
+		
+		// 2. 검색 조건 설정
+		String text = null;  // 검색어
+		try {
+			String searchText = keyword;
+			text = URLEncoder.encode(searchText, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("검색어 인코딩 실패", e);
+		}
 
+		//웹문서 검색
+		String apiURL = "https://openapi.naver.com/v1/search/news.json?query=" + text
+				+ "&display=3&start=" + randomNumber;
+
+		// 4. API 호출
+		Map<String, String> requestHeaders = new HashMap<>();
+		requestHeaders.put("X-Naver-Client-Id", clientId);
+		requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+		String responseBody = get(apiURL, requestHeaders);
+
+		// 5. 결과 출력
+		System.out.println(responseBody);  // 콘솔에 출력
+
+		response.setContentType("text/html; charset=utf-8");
+		response.getWriter().write(responseBody);  // 서블릿에서 즉시 출력
+	}
+	
+	private static String get(String apiUrl, Map<String, String> requestHeaders){
+		HttpURLConnection con = connect(apiUrl);
+		try {
+			con.setRequestMethod("GET");
+			for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
+				con.setRequestProperty(header.getKey(), header.getValue());
+			}
+
+
+			int responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
+				return readBody(con.getInputStream());
+			} else { // 에러 발생
+				return readBody(con.getErrorStream());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("API 요청과 응답 실패", e);
+		} finally {
+			con.disconnect();
+		}
+	}
+
+
+	private static HttpURLConnection connect(String apiUrl){
+		try {
+			URL url = new URL(apiUrl);
+			return (HttpURLConnection)url.openConnection();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
+		} catch (IOException e) {
+			throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
+		}
+	}
+
+
+	private static String readBody(InputStream body){
+		InputStreamReader streamReader = new InputStreamReader(body);
+
+
+		try (BufferedReader lineReader = new BufferedReader(streamReader)) {
+			StringBuilder responseBody = new StringBuilder();
+
+
+			String line;
+			while ((line = lineReader.readLine()) != null) {
+				responseBody.append(line);
+			}
+
+
+			return responseBody.toString();
+		} catch (IOException e) {
+			throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
+		}
+	}
 }
+

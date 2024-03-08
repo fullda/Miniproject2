@@ -121,8 +121,6 @@
     	});
 	}
 	/*더보기 추가후 리스트출력*************************************************************************************************************/
-	
-	
 	  
 	/*리스트 출력 끝******************************************************************************************************************/
 	
@@ -185,6 +183,14 @@
         });
     }
 
+    function adjustTextareaHeight() {
+        // 각 텍스트 영역에 대해 높이 계산 및 설정
+        $('textarea').each(function() {
+          $(this).css('height', 'auto'); // 높이 초기화
+          $(this).css('height', this.scrollHeight + 'px'); // 스크롤 높이로 설정
+        });
+    }
+	
     $(document).ready(function () {
         // 수정하기 버튼 클릭 시 모달창 보이기
         $("#modalModBtn").click(function () {
@@ -242,17 +248,17 @@
 		
 		/* 비밀번호 표시 이벤트***********************************************************************************************************************************************/
 		$("#showPasswordBtn").on("click", function() {
-			var passwordInput = $("#passwordInput");
-			var passwordBtn = $(this);
+         var passwordReply = $("#passwordReply");
+         var passwordBtn = $(this);
 
-				if (passwordInput.attr("type") === "password") {
-   				passwordInput.attr("type", "text");
-    			passwordBtn.text("숨기기");
-				} else {
-    			passwordInput.attr("type", "password");
-    			passwordBtn.text("확인");
-			}
-			});
+            if (passwordReply.attr("type") === "password") {
+               passwordReply.attr("type", "text");
+             passwordBtn.text("숨기기");
+            } else {
+             passwordReply.attr("type", "password");
+             passwordBtn.text("확인");
+         	}
+         });
 		/* 비밀번호 표시 이벤트 끝***********************************************************************************************************************************************/
 		
 		
@@ -338,6 +344,14 @@
 		});
 		
 		/* 더보기버튼 event 처리 끝*******************************************************************************************/
+		// 페이지 로딩 완료 시 실행되는 코드
+	    adjustTextareaHeight(); // 페이지 로딩 시 크기 조정
+
+	    // 텍스트 영역 내용이 변경될 때마다 크기 조정
+	    $('textarea').on('input', function() {
+	      adjustTextareaHeight();
+	    });
+	
     });
 
     </script>
@@ -384,7 +398,7 @@
 		</div>
 
 		<!-- 기사 내용 박스 ---------------------------------------------------------------------------------------------------------------------------------->
-		<div class="container p-5">${postit.pcontent}</div>
+		<textarea class="container p-5" style="overflow: hidden; resize: none; border: none;">${postit.pcontent}</textarea>
 	</div>
 
 	<!-- 비밀번호 확인 modal ----------------------------------------------------------------------------------------->
@@ -458,7 +472,7 @@
 						<div class="form-group">
 							<label class="col-form-label text-dark">비밀번호:</label>
 							<div class="input-group">
-								<input type="password" class="form-control" id="passwordInput"
+								<input type="password" class="form-control" id="passwordReply"
 									name="password" value="비밀번호를 작성해주세요">
 								<div class="input-group-append">
 									<button class="btn btn-secondary"
